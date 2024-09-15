@@ -7,7 +7,7 @@
     "warmup": 400,
     "max_to_keep": 5,
     "grad_clip": 10.0,
-    "pooling": "cls",
+    "pooling": "mean",
     "dropout": 0.1,
     "use_amp": false,
     "t": 0.05,
