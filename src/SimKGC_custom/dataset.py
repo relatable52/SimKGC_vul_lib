@@ -112,7 +112,6 @@ class KGDataset(Dataset):
             relations = json.load(f)
         for index, relation in enumerate(list(relations.values())):
             self.entity2id[relation] = index
-            print(relation, index)
 
     def _build_neighbor_dict(self):
         with open(self.neighbor_path, 'r', encoding='utf8') as f:
@@ -197,7 +196,7 @@ class KGDataset(Dataset):
     
     def _self_negatives_mask(self, triplet: torch.Tensor) -> torch.Tensor:
         mask = [
-            (i[0] in self.neighbor_dict[(i[0], i[1])]) for i in triplet
+            (i[0] not in self.neighbor_dict[(i[0], i[1])]) for i in triplet
         ]
         mask = torch.tensor(mask)
         return mask
@@ -211,11 +210,11 @@ if __name__ == '__main__':
         cache_dir='data/cache',
         name = 'vul_lib',
         tokenizer = AutoTokenizer.from_pretrained('bert-base-cased'),
-        max_length=5
+        max_length=10
     )
     train_loader = DataLoader(
         train, 
-        batch_size=3,
+        batch_size=5,
         collate_fn=train.collate
     )
     batch = next(iter(train_loader))
