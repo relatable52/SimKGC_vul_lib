@@ -2,6 +2,9 @@ import json
 import os
 import pickle
 from tqdm import tqdm
+from collections import defaultdict
+
+import torch
 from torch.utils.data import Dataset, DataLoader
 from transformers import PreTrainedTokenizer, AutoTokenizer
 
@@ -22,6 +25,9 @@ class KGDataset(Dataset):
     def __init__(
         self, *,
         data_path: str,
+        entities_path: str,
+        relations_path: str,
+        neighbor_path: str,
         cache_dir: str,
         name: str = '',
         tokenizer: PreTrainedTokenizer = None,
@@ -29,24 +35,31 @@ class KGDataset(Dataset):
     ):
         assert data_path.endswith('.json'), f'Unsupported format: {data_path}'
         self.data_path = data_path
+        self.entities_path = entities_path
+        self.relations_path = relations_path
+        self.neighbor_path = neighbor_path
         self.cache_dir = cache_dir
         self.tokenizer = tokenizer
         self.max_length = max_length
         
         self.name = os.path.basename(self.data_path) #File name for logging
         file_name = os.path.splitext(os.path.basename(self.data_path))[0]
-        self.cache_path = os.path.join(self.cache_dir, name + file_name + '.pkl')
+        self.cache_path = os.path.join(self.cache_dir, name + '_' + file_name + '.pkl')
+
+        self._build_entities_dict()
+        self._build_neighbor_dict()
 
         self.data = {
+            'triplet': [],
             'hr_token_ids': [],
             'hr_token_type_ids': [],
-            'hr_attention_mask': [],
+            'hr_mask': [],
             'tail_token_ids': [],
             'tail_token_type_ids': [],
-            'tail_attention_mask': [],
+            'tail_mask': [],
             'head_token_ids': [],
             'head_token_type_ids': [],
-            'head_attention_mask': [],
+            'head_mask': [],
         }
         self.keys = self.data.keys()
 
@@ -88,6 +101,27 @@ class KGDataset(Dataset):
         data = [DataEntry(**entry) for entry in json_data]
         return data
     
+    def _build_entities_dict(self):
+        with open(self.entities_path, 'r', encoding='utf8') as f:
+            entities = json.loads(f)
+        self.entity2id = {}
+        for index, entity in enumerate(entities):
+            self.entity2id[entity['entity_id']] = index
+
+        with open(self.relations_path, 'r', encoding='utf8') as f:
+            relations = json.loads(f)
+        for index, relation in enumerate([relations.values()]):
+            self.entity2id[relation] = index
+
+    def _build_neighbor_dict(self):
+        with open(self.neighbor_path, 'r', encoding='utf8') as f:
+            relations = json.loads(f)
+        self.neighbor_dict = defaultdict(set)
+        for entry in relations:
+            hr = (self.entity2id[entry['head_id']], self.entity2id[entry['relation']])
+            tail = self.entity2id[entry['tail_id']]
+            self.neighbor_dict[hr].add(tail)
+
     def _tokenize(self, entry: DataEntry):
         tokenize_setting = {
             'add_special_tokens': True,
@@ -101,22 +135,71 @@ class KGDataset(Dataset):
         head = entry.head
         tail = entry.tail
         relation = entry.relation
+        triplet = [
+            self.entity2id[entry.head_id],
+            self.entity2id[entry.relation],
+            self.entity2id[entry.tail_id]
+        ]
 
         hr_inputs = self.tokenizer(text=head, text_pair=relation, **tokenize_setting)
         tail_inputs = self.tokenizer(text=tail, **tokenize_setting)
         head_inputs = self.tokenizer(text=head, **tokenize_setting)
 
         return {
+            'triplet': triplet,
             'hr_token_ids': hr_inputs['input_ids'],
             'hr_token_type_ids': hr_inputs['token_type_ids'],
-            'hr_attention_mask': hr_inputs['attention_mask'],
+            'hr_mask': hr_inputs['attention_mask'],
             'tail_token_ids': tail_inputs['input_ids'],
             'tail_token_type_ids': tail_inputs['token_type_ids'],
-            'tail_attention_mask': tail_inputs['attention_mask'],
+            'tail_mask': tail_inputs['attention_mask'],
             'head_token_ids': head_inputs['input_ids'],
             'head_token_type_ids': head_inputs['token_type_ids'],
-            'head_attention_mask': head_inputs['attention_mask'],
+            'head_mask': head_inputs['attention_mask'],
         }
+    
+    def collate(self, batch_data: list[dict]) -> dict:
+        batch_dict = {
+            'hr_token_ids': None,
+            'hr_mask': None,
+            'hr_token_type_ids': None,
+            'tail_token_ids': None,
+            'tail_mask': None,
+            'tail_token_type_ids': None,
+            'head_token_ids': None,
+            'head_mask': None,
+            'head_token_type_ids': None
+        }
+
+        triplet = [entry['triplet'] for entry in batch_data]
+        inbatch_mask = self._inbatch_negatives_mask(triplet)
+        self_mask = self._self_negatives_mask(triplet)
+
+        for key in batch_dict.keys():
+            batch_dict[key] = torch.stack([entry[key] for entry in batch_data])
+
+        batch_dict['triplet_mask'] = inbatch_mask
+        batch_dict['self_negative_mask'] = self_mask
+        
+        return batch_dict
+    
+    def _inbatch_negatives_mask(self, triplet: torch.Tensor) -> torch.Tensor:
+        mask = [
+            [
+                ((i[2] != j[2]) and (j[2] not in self.neighbor_dict[(i[0],i[1])])) for j in triplet
+            ]
+            for i in triplet
+        ]
+        mask = torch.tensor(mask)
+        mask.fill_diagonal_(True)
+        return mask
+    
+    def _self_negatives_mask(self, triplet: torch.Tensor) -> torch.Tensor:
+        mask = [
+            (i[0] in self.neighbor_dict[(i[0], i[1])]) for i in triplet
+        ]
+        mask = torch.tensor(mask)
+        return mask
     
 if __name__ == '__main__':
     train = KGDataset(
@@ -128,7 +211,8 @@ if __name__ == '__main__':
     )
     train_loader = DataLoader(
         train, 
-        batch_size=3
+        batch_size=3,
+        collate_fn=train.collate
     )
     batch = next(iter(train_loader))
     print(batch)
