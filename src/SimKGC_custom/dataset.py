@@ -112,6 +112,7 @@ class KGDataset(Dataset):
             relations = json.load(f)
         for index, relation in enumerate([relations.values()]):
             self.entity2id[relation] = index
+            print(relation)
 
     def _build_neighbor_dict(self):
         with open(self.neighbor_path, 'r', encoding='utf8') as f:
