@@ -91,7 +91,8 @@ class KGDataset(Dataset):
             'max_length': self.max_length,
             'return_token_type_ids': True,
             'truncation': True,
-            'padding': 'max_length'
+            'padding': 'max_length',
+            'return_tensors': 'pt'
         }
 
         head = entry.head
