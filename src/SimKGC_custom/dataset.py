@@ -121,7 +121,7 @@ if __name__ == '__main__':
     )
     train_loader = DataLoader(
         train, 
-        batch_size=2
+        batch_size=1
     )
     batch = next(iter(train_loader))
     print(batch)
