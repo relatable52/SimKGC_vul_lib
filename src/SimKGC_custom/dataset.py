@@ -206,7 +206,7 @@ if __name__ == '__main__':
         data_path='data/test.txt.json',
         entities_path='data/entities.json',
         relations_path='data/relations.json',
-        neighbor_path='data/neighbor.json'
+        neighbor_path='data/neighbor.json',
         cache_dir='data/cache',
         name = 'vul_lib',
         tokenizer = AutoTokenizer.from_pretrained('bert-base-cased'),
