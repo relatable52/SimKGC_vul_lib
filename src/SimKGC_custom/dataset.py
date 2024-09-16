@@ -103,19 +103,19 @@ class KGDataset(Dataset):
     
     def _build_entities_dict(self):
         with open(self.entities_path, 'r', encoding='utf8') as f:
-            entities = json.loads(f)
+            entities = json.load(f)
         self.entity2id = {}
         for index, entity in enumerate(entities):
             self.entity2id[entity['entity_id']] = index
 
         with open(self.relations_path, 'r', encoding='utf8') as f:
-            relations = json.loads(f)
+            relations = json.load(f)
         for index, relation in enumerate([relations.values()]):
             self.entity2id[relation] = index
 
     def _build_neighbor_dict(self):
         with open(self.neighbor_path, 'r', encoding='utf8') as f:
-            relations = json.loads(f)
+            relations = json.load(f)
         self.neighbor_dict = defaultdict(set)
         for entry in relations:
             hr = (self.entity2id[entry['head_id']], self.entity2id[entry['relation']])
