@@ -81,7 +81,7 @@ class KGDataset(Dataset):
 
     def _load_json_data(self) -> list[DataEntry]:
         with open(self.data_path, 'r', encoding='utf8') as f:
-            json_data = f.load(f)
+            json_data = pickle.load(f)
         data = [DataEntry(**entry) for entry in json_data]
         return data
     
