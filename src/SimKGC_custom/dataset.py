@@ -47,7 +47,7 @@ class KGDataset(Dataset):
         }
         self.keys = self.data.keys()
 
-        if not os.path.exist(self.cache_path):
+        if not os.path.exists(self.cache_path):
             self._preprocess()
             self._save_cache()
         else:
