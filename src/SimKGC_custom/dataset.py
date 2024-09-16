@@ -58,7 +58,7 @@ class KGDataset(Dataset):
 
     def __getitem__(self, index):
         item = {key: self.data[key][index] for key in self.keys}
-        return super().__getitem__(index)
+        return item
     
     def _preprocess(self):
         json_data = self._load_json_data()
