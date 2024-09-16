@@ -118,11 +118,11 @@ if __name__ == '__main__':
         cache_dir='data/cache',
         name = 'vul_lib',
         tokenizer = AutoTokenizer.from_pretrained('bert-base-cased'),
-        max_length=10
+        max_length=5
     )
     train_loader = DataLoader(
         train, 
-        batch_size=1
+        batch_size=3
     )
     batch = next(iter(train_loader))
     print(batch)
