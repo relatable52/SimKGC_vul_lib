@@ -110,7 +110,7 @@ class KGDataset(Dataset):
 
         with open(self.relations_path, 'r', encoding='utf8') as f:
             relations = json.load(f)
-        for index, relation in enumerate([relations.values()]):
+        for index, relation in enumerate(list(relations.values())):
             self.entity2id[relation] = index
             print(relation, index)
 
