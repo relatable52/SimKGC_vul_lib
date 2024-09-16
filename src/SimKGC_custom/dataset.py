@@ -40,10 +40,13 @@ class KGDataset(Dataset):
         self.data = {
             'hr_token_ids': [],
             'hr_token_type_ids': [],
+            'hr_attention_mask': [],
             'tail_token_ids': [],
             'tail_token_type_ids': [],
+            'tail_attention_mask': [],
             'head_token_ids': [],
             'head_token_type_ids': [],
+            'head_attention_mask': [],
         }
         self.keys = self.data.keys()
 
@@ -106,10 +109,13 @@ class KGDataset(Dataset):
         return {
             'hr_token_ids': hr_inputs['input_ids'],
             'hr_token_type_ids': hr_inputs['token_type_ids'],
+            'hr_attention_mask': hr_inputs['attention_mask'],
             'tail_token_ids': tail_inputs['input_ids'],
             'tail_token_type_ids': tail_inputs['token_type_ids'],
+            'tail_attention_mask': tail_inputs['attention_mask'],
             'head_token_ids': head_inputs['input_ids'],
             'head_token_type_ids': head_inputs['token_type_ids'],
+            'head_attention_mask': head_inputs['attention_mask'],
         }
     
 if __name__ == '__main__':
