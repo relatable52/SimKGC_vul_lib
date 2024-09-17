@@ -176,7 +176,7 @@ class KGDataset(Dataset):
         self_mask = self._self_negatives_mask(triplet)
 
         for key in batch_dict.keys():
-            batch_dict[key] = torch.stack([entry[key][0] for entry in batch_data])
+            batch_dict[key] = torch.stack([entry[key] for entry in batch_data], dim=1)
 
         batch_dict['triplet_mask'] = inbatch_mask
         batch_dict['self_negative_mask'] = self_mask
