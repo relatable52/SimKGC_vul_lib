@@ -107,6 +107,6 @@ class EntitiesEncoder(nn.Module):
             pooling=self.pooling, 
             cls_output=cls_output,
             mask=attention_mask,
-            token_type_ids=token_type_ids
+            last_hidden_state=last_hidden_state
         )
         return cls_output
