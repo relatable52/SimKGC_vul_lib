@@ -11,13 +11,9 @@ class CustomEncoder(nn.Module):
         batch_size: int,
         pre_batch: int,
         additive_margin: float,
-        t: float,
-        finetune_t: bool,
         pooling: str = 'cls',
         **kwargs
     ):
-        self.log_inv_t = torch.nn.Parameter(torch.tensor(1.0/t), requires_grad=finetune_t)
-
         self.add_margin = additive_margin
         self.batch_size = batch_size
         self.pre_batch = pre_batch
@@ -72,42 +68,6 @@ class CustomEncoder(nn.Module):
         return {'hr_vector': hr_vector,
                 'tail_vector': tail_vector,
                 'head_vector': head_vector}
-    
-    def compute_logits(self, output_dict: dict, batch_dict: dict) -> dict:
-        hr_vector, tail_vector = output_dict['hr_vector'], output_dict['tail_vector']
-        batch_size = hr_vector.size(0)
-        labels = torch.arange(batch_size).to(hr_vector.device)
-
-        logits = hr_vector.mm(tail_vector.t())
-        if self.training:
-            logits -= torch.zeros(logits.size()).fill_diagonal_(self.add_margin).to(logits.device)
-        logits *= self.log_inv_t.exp()
-
-        triplet_mask = batch_dict.get('triplet_mask', None)
-        if triplet_mask is not None:
-            logits.masked_fill_(~triplet_mask, -1e4)
-
-        if self.args.use_self_negative and self.training:
-            head_vector = output_dict['head_vector']
-            self_neg_logits = torch.sum(hr_vector * head_vector, dim=1) * self.log_inv_t.exp()
-            self_negative_mask = batch_dict['self_negative_mask']
-            self_neg_logits.masked_fill_(~self_negative_mask, -1e4)
-            logits = torch.cat([logits, self_neg_logits.unsqueeze(1)], dim=-1)
-
-        return {'logits': logits,
-                'labels': labels,
-                'inv_t': self.log_inv_t.detach().exp(),
-                'hr_vector': hr_vector.detach(),
-                'tail_vector': tail_vector.detach()}
-    
-    @torch.no_grad()
-    def predict_ent_embedding(self, tail_token_ids, tail_mask, tail_token_type_ids, **kwargs) -> dict:
-        ent_vectors = self.tail_encoder(
-            input_ids = tail_token_ids,
-            attetion_mask = tail_mask,
-            token_type_ids = tail_token_type_ids
-        )
-        return {'ent_vectors': ent_vectors.detach()}
 
 class EntitiesEncoder(nn.Module):
     def __init__(
