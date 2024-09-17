@@ -63,7 +63,7 @@ class EntitiesEncoder(nn.Module):
         self.encoder = AutoModel.from_pretrained(pretrained_model)
         self.pooling = pooling
         assert pooling in POOLING_TYPE, f'Unknown pooling mode: {pooling}'
-                 
+       
     def _pool_output(
         self, 
         pooling: str,
@@ -103,7 +103,7 @@ class EntitiesEncoder(nn.Module):
 
         last_hidden_state = outputs.last_hidden_state
         cls_output = last_hidden_state[:, 0, :]
-        cls_output = EntitiesEncoder._pool_output(
+        cls_output = self._pool_output(
             pooling=self.pooling, 
             cls_output=cls_output,
             mask=attention_mask,
