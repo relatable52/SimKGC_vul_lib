@@ -8,27 +8,10 @@ class CustomEncoder(nn.Module):
     def __init__(
         self, *,
         pretrained_model: str,
-        batch_size: int,
-        pre_batch: int,
-        additive_margin: float,
         pooling: str = 'cls',
         **kwargs
     ):
-        self.add_margin = additive_margin
-        self.batch_size = batch_size
-        self.pre_batch = pre_batch
-
         config = AutoConfig.from_pretrained(pretrained_model)
-        num_pre_batch_vectors = max(1, self.pre_batch) * self.batch_size
-        random_vector = torch.randn(num_pre_batch_vectors, config.hidden_size)
-        self.register_buffer(
-            "pre_batch_vectors",
-            nn.functional.normalize(random_vector, dim=1),
-            persistent=False
-        )
-        self.offset = 0
-        self.pre_batch_exs = [None for _ in range(num_pre_batch_vectors)]
-
         self.hr_encoder = EntitiesEncoder(pretrained_model=pretrained_model, pooling=pooling)
         self.tail_encoder = EntitiesEncoder(pretrained_model=pretrained_model, pooling=pooling)
 
