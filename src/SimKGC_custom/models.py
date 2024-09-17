@@ -33,19 +33,19 @@ class CustomEncoder(nn.Module):
         
         hr_vector = self.hr_encoder(
             input_ids = hr_token_ids,
-            attetion_mask = hr_mask,
+            attention_mask = hr_mask,
             token_type_ids = hr_token_type_ids
         )
 
         tail_vector = self.tail_encoder(
             input_ids = tail_token_ids,
-            attetion_mask = tail_mask,
+            attention_mask = tail_mask,
             token_type_ids = tail_token_type_ids
         )
 
         head_vector = self.tail_encoder(
             input_ids = head_token_ids,
-            attetion_mask = head_mask,
+            attention_mask = head_mask,
             token_type_ids = head_token_type_ids
         )
 
