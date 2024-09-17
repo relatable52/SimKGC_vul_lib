@@ -11,6 +11,7 @@ class CustomEncoder(nn.Module):
         pooling: str = 'cls',
         **kwargs
     ):
+        super().__init__()
         config = AutoConfig.from_pretrained(pretrained_model)
         self.hr_encoder = EntitiesEncoder(pretrained_model=pretrained_model, pooling=pooling)
         self.tail_encoder = EntitiesEncoder(pretrained_model=pretrained_model, pooling=pooling)
@@ -58,6 +59,7 @@ class EntitiesEncoder(nn.Module):
         pretrained_model: str,
         pooling: str
     ):
+        super().__init__()
         self.encoder = AutoModel.from_pretrained(pretrained_model),
         self.pooling = pooling
         assert pooling in POOLING_TYPE, f'Unknown pooling mode: {pooling}'
