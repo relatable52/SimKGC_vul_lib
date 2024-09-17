@@ -60,7 +60,7 @@ class EntitiesEncoder(nn.Module):
         pooling: str
     ):
         super().__init__()
-        self.encoder = AutoModel.from_pretrained(pretrained_model),
+        self.encoder = AutoModel.from_pretrained(pretrained_model)
         self.pooling = pooling
         assert pooling in POOLING_TYPE, f'Unknown pooling mode: {pooling}'
                  
