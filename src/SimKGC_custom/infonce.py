@@ -4,6 +4,7 @@ import torch.nn.functional as F
 
 class CustomInfoNCELoss(nn.Module):
     def __init__(self, *, temp: float, margin: float, use_self_negative: bool=False):
+        super().__init__()
         self.temp = temp
         self.margin = margin
         self.use_self_negative = use_self_negative
@@ -14,7 +15,7 @@ class CustomInfoNCELoss(nn.Module):
         tail_vector: torch.Tensor,
         head_vector: torch.Tensor,
         triplet_mask: torch.Tensor,
-        self_negative_mask: torch.Tensor,
+        self_negative_mask: torch.Tensor=None
     ):
         return infonce(
             hr_vector=hr_vector,
