@@ -231,6 +231,7 @@ class KGCTrainer:
 
             top1.update(acc1, batch_size)
             top5.update(acc5, batch_size)
+            losses.update(loss.item(), batch_size)
         
         metric_dict = {'Acc@1': round(top1.avg, 3),
                        'Acc@3': round(top5.avg, 3),
