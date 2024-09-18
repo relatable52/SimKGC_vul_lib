@@ -182,7 +182,7 @@ class KGCTrainer:
             losses.update(loss.item(), batch_size)
 
             self.optimizer.zero_grad()
-            if self.args.use_amp:
+            if self.use_amp:
                 self.scaler.scale(loss).backward()
                 self.scaler.unscale_(self.optimizer)
                 self.scaler.step(self.optimizer)
