@@ -146,10 +146,13 @@ class KGCTrainer:
         self.save_model('last.pth')
 
     def save_model(self, filename):
+        if not os.path.exists(self.save_dir):
+            os.makedirs(self.save_dir)
+        
         if isinstance(self.model, torch.nn.DataParallel):
-            torch.save(self.model.module.state_dict(), filename)
+            torch.save(self.model.module.state_dict(), os.path.join(self.save_dir, filename))
         else:
-            torch.save(self.model.state_dict(), filename)
+            torch.save(self.model.state_dict(), os.path.join(self.save_dir, filename))
 
     def train_epoch(self, epoch: int, print_freq: int):
         losses = AverageMeter('Loss', ':.4')
