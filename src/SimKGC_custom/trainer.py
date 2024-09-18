@@ -157,7 +157,7 @@ class KGCTrainer:
     def train_epoch(self, epoch: int, print_freq: int):
         losses = AverageMeter('Loss', ':.4')
         batches = len(self.train_loader)
-        for i, batch_dict in (loop := tqdm(enumerate(self.train_loader))):
+        for i, batch_dict in enumerate((loop := tqdm(self.train_loader))):
             self.model.train()
         
             if torch.cuda.is_available():
@@ -205,7 +205,7 @@ class KGCTrainer:
         top1 = AverageMeter('Acc@1', ':6.2f')
         top5 = AverageMeter('Acc@5', ':6.2f')
 
-        for i, batch_dict in tqdm(enumerate(self.test_loader)):
+        for i, batch_dict in enumerate(tqdm(self.test_loader)):
             self.model.eval()
 
             if torch.cuda.is_available():
