@@ -165,7 +165,7 @@ class KGCTrainer:
             
             batch_size = batch_dict['hr_token_ids'].size(0)
 
-            if self.args.use_amp:
+            if self.use_amp:
                 with torch.cuda.autocast():
                     outputs = self.model(**batch_dict)
             else:
