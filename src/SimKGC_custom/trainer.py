@@ -157,7 +157,7 @@ class KGCTrainer:
     def train_epoch(self, epoch: int, print_freq: int):
         losses = AverageMeter('Loss', ':.4')
         batches = len(self.train_loader)
-        for i, batch_dict in tqdm(enumerate(self.train_loader)):
+        for i, batch_dict in (loop := tqdm(enumerate(self.train_loader))):
             self.model.train()
         
             if torch.cuda.is_available():
@@ -192,7 +192,8 @@ class KGCTrainer:
                 self.optimizer.step()
 
             if i % print_freq == 0:
-                self.logger.info(f'Epoch{epoch} - {i}/{batches}: Loss={round(losses.val, 3)}')
+                loop.set_description(f'Epoch{epoch} - {i}/{batches}')
+                loop.set_postfix({'loss':round(losses.val, 3)})
         self.logger.info(f'Epoch {epoch}: Loss={round(losses.avg, 3)}')
 
     @torch.no_grad()
