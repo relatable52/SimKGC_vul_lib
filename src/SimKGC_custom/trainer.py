@@ -107,10 +107,11 @@ class KGCTrainer:
     def train(
         self, 
         epochs: int, 
-        learning_rate: float = 5e-5,
-        weight_decay: float = 1e-4,
+        use_self_negative = True,
         temp: float = 0.05, 
         margin: float = 0.05,
+        learning_rate: float = 5e-5,
+        weight_decay: float = 1e-4,
         print_freq: int = 10
     ):
         self.optimizer = AdamW(
@@ -121,7 +122,8 @@ class KGCTrainer:
 
         self.criterion = CustomInfoNCELoss(
             temp=temp,
-            margin=margin
+            margin=margin,
+            use_self_negative=use_self_negative
         )
 
         if self.use_amp:
