@@ -18,18 +18,11 @@ class CustomEncoder(nn.Module):
 
     def forward(
         self,
-        hr_token_ids: torch.tensor, hr_mask: torch.tensor, hr_token_type_ids: torch.tensor,
-        tail_token_ids: torch.tensor, tail_mask: torch.tensor, tail_token_type_ids: torch.tensor,
-        head_token_ids: torch.tensor, head_mask: torch.tensor, head_token_type_ids: torch.tensor,
-        only_ent_embedding: bool = False,
+        hr_token_ids: torch.Tensor, hr_mask: torch.Tensor, hr_token_type_ids: torch.Tensor,
+        tail_token_ids: torch.Tensor, tail_mask: torch.Tensor, tail_token_type_ids: torch.tensor,
+        head_token_ids: torch.Tensor, head_mask: torch.Tensor, head_token_type_ids: torch.Tensor,
         **kwargs
     ):
-        if only_ent_embedding:
-            return self.predict_ent_embedding(
-                tail_token_ids=tail_token_ids,
-                tail_mask = tail_mask,
-                tail_token_type_ids=tail_token_type_ids
-            )
         
         hr_vector = self.hr_encoder(
             input_ids = hr_token_ids,
@@ -55,7 +48,7 @@ class CustomEncoder(nn.Module):
 
 class EntitiesEncoder(nn.Module):
     def __init__(
-        self,
+        self, *,
         pretrained_model: str,
         pooling: str
     ):
@@ -89,7 +82,7 @@ class EntitiesEncoder(nn.Module):
         return output_vector
     
     def forward(
-        self,
+        self, *,
         input_ids: torch.Tensor,
         attention_mask: torch.Tensor,
         token_type_ids: torch.Tensor
