@@ -112,7 +112,6 @@ class KGCTrainer:
         margin: float = 0.05,
         learning_rate: float = 5e-5,
         weight_decay: float = 1e-4,
-        print_freq: int = 10
     ):
         self.optimizer = AdamW(
             [p for p in self.model.parameters() if p.requires_grad],
@@ -138,7 +137,7 @@ class KGCTrainer:
 
         accuracy = 0
         for epoch in range(epochs):
-            self.train_epoch(epoch=epoch, print_freq=print_freq)
+            self.train_epoch(epoch=epoch)
             temp_accuracy = self._eval(epoch=epoch)
             if temp_accuracy > accuracy: 
                 accuracy = temp_accuracy
