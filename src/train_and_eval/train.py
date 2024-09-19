@@ -10,7 +10,7 @@ from transformers import AutoTokenizer
 
 def main():
     tokenizer = AutoTokenizer.from_pretrained('bert-base-cased')
-    max_length = 512
+    max_length = 256
     train = KGDataset(
         data_path='data/train.txt.json',
         entities_path='data/entities.json',
@@ -35,7 +35,7 @@ def main():
     model = CustomEncoder(pretrained_model='bert-base-cased', pooling='max')
     setting = LoaderSetting(
         batch_size = 256,
-        num_workers = 3
+        num_workers = 2
     )
 
     trainer = KGCTrainer(
