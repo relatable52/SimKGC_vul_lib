@@ -154,7 +154,7 @@ class KGCTrainer:
         else:
             torch.save(self.model.state_dict(), os.path.join(self.save_dir, filename))
 
-    def train_epoch(self, epoch: int, print_freq: int):
+    def train_epoch(self, epoch: int):
         losses = AverageMeter('Loss', ':.4')
         batches = len(self.train_loader)
         for i, batch_dict in enumerate((loop := tqdm(self.train_loader))):
@@ -191,9 +191,8 @@ class KGCTrainer:
                 loss.backward()
                 self.optimizer.step()
 
-            if i % print_freq == 0:
-                loop.set_description(f'Epoch{epoch} - {i}/{batches}')
-                loop.set_postfix({'loss':round(losses.val, 3)})
+            loop.set_description(f'Epoch{epoch} - {i}/{batches}')
+            loop.set_postfix({'loss':round(losses.val, 3)})
         self.logger.info(f'Epoch {epoch}: Loss={round(losses.avg, 3)}')
 
     @torch.no_grad()

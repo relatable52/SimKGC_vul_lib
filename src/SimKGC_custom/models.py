@@ -45,6 +45,18 @@ class CustomEncoder(nn.Module):
         return {'hr_vector': hr_vector,
                 'tail_vector': tail_vector,
                 'head_vector': head_vector}
+    
+    def predict_entity(
+        self, *,
+        token_ids: torch.Tensor, mask: torch.Tensor, token_type_ids: torch.tensor,
+        **kwargs
+    ):
+        outputs = self.tail_encoder(
+            input_ids = token_ids,
+            attention_mask = mask,
+            token_type_ids = token_type_ids
+        )
+        return outputs
 
 class EntitiesEncoder(nn.Module):
     def __init__(
@@ -103,3 +115,4 @@ class EntitiesEncoder(nn.Module):
             last_hidden_state=last_hidden_state
         )
         return cls_output
+        

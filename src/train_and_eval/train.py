@@ -1,21 +1,52 @@
-import torch
 import json
-import torch.backends.cudnn as cudnn
-from argparse import ArgumentParser
+from tqdm import tqdm
 
-from src.SimKGC.trainer import Trainer
-from .logger import logger
-from src.SimKGC.config import args
+from src.SimKGC_custom.dataset import KGDataset, EntitiesDataset
+from src.SimKGC_custom.models import CustomEncoder
+from src.SimKGC_custom.trainer import KGCTrainer, LoaderSetting, AverageMeter
+from src.train_and_eval.logger import logger
+
+from transformers import AutoTokenizer
 
 def main():
-    ngpus_per_node = torch.cuda.device_count()
-    cudnn.benchmark = True
+    tokenizer = AutoTokenizer.from_pretrained('bert-base-cased')
+    max_length = 512
+    train = KGDataset(
+        data_path='data/train.txt.json',
+        entities_path='data/entities.json',
+        relations_path='data/relations.json',
+        neighbor_path='data/neighbor.json',
+        cache_dir='data/cache',
+        name = 'vul_lib',
+        tokenizer = tokenizer,
+        max_length=max_length
+    )
+    valid = KGDataset(
+        data_path='data/valid.txt.json',
+        entities_path='data/entities.json',
+        relations_path='data/relations.json',
+        neighbor_path='data/neighbor.json',
+        cache_dir='data/cache',
+        name = 'vul_lib',
+        tokenizer = tokenizer,
+        max_length=max_length
+    )
 
-    logger.info("Use {} gpus for training".format(ngpus_per_node))
+    model = CustomEncoder(pretrained_model='bert-base-cased', pooling='max')
+    setting = LoaderSetting(
+        batch_size = 256,
+        num_workers = 3
+    )
 
-    trainer = Trainer(args, ngpus_per_node=ngpus_per_node)
-    logger.info('Args={}'.format(json.dumps(args.__dict__, ensure_ascii=False, indent=4)))
-    trainer.train_loop()
-
-if __name__ == '__main__':
+    trainer = KGCTrainer(
+        model = model, 
+        train = train,
+        save_dir = 'checkpoints',
+        logger = logger,
+        test = valid, 
+        train_setting = setting
+    )
+    trainer.train(epochs = 15)
+        
+if __name__ == "__main__":
     main()

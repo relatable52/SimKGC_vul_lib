@@ -15,9 +15,9 @@ class DataEntry:
         tail_id: str, tail: str,
         relation: str
     ):
-        self.head = head
+        self.head = head_id + ' ' + head
         self.head_id = head_id
-        self.tail = tail
+        self.tail = tail_id + ' ' + tail
         self.tail_id = tail_id
         self.relation = relation
 
@@ -180,6 +180,7 @@ class KGDataset(Dataset):
 
         batch_dict['triplet_mask'] = inbatch_mask
         batch_dict['self_negative_mask'] = self_mask
+        batch_dict['triplet'] = torch.tensor(triplet)
         
         return batch_dict
     
@@ -201,6 +202,51 @@ class KGDataset(Dataset):
         mask = torch.tensor(mask)
         return mask
     
+# class EntitiesDataset(Dataset):
+#     def __init__(self, entities_path: str, tokenizer: PreTrainedTokenizer, max_length: int = 512):
+#         self.tokenizer = tokenizer
+#         self.max_length = max_length
+
+#         tokenizer_setting = {
+#             'add_special_tokens': True,
+#             'max_length': self.max_length,
+#             'return_token_type_ids': True,
+#             'truncation': True,
+#             'padding': 'max_length',
+#             'return_tensors': 'pt'
+#         }
+
+#         with open(entities_path, 'r', encoding='utf8') as f:
+#             self.entities = json.load(f)
+
+#         self.entity2id = {}
+#         for index, entity in enumerate(self.entities):
+#             self.entity2id[entity['entity_id']] = index
+        
+#         self.entities_input = {
+#             'input_ids':[],
+#             'attention_mask':[],
+#             'token_type_ids':[]
+#         }
+        
+#         for entity in (loop:=tqdm(self.entities)):
+#             loop.set_description('Processing entities')
+#             inputs = self.tokenizer(
+#                 text=entity['entity_id'] + ' ' + entity['entity']
+#             )
+#             for key in self.entities_input.keys():
+#                 self.entities_input[key].append(inputs[key][0])
+                
+#     def __len__(self):
+#         return len(self.entities)
+    
+#     def __getitem__(self, index):
+#         return {
+#             'input_ids': self.entities_input['input_ids'][index],
+#             'attetion_mask': self.entities_input['attetion_mask'][index],
+#             'token_type_ids': self.entities_input['token_type_ids'][index]
+#         }
+        
 if __name__ == '__main__':
     train = KGDataset(
         data_path='data/test.txt.json',
