@@ -34,7 +34,7 @@ def main():
 
     model = CustomEncoder(pretrained_model='bert-base-cased', pooling='max')
     setting = LoaderSetting(
-        batch_size = 256,
+        batch_size = 128,
         num_workers = 2
     )
 
