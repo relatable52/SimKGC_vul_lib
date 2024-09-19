@@ -1,9 +1,9 @@
 import json
 from tqdm import tqdm
 
-from src.SimKGC_custom.dataset import KGDataset, EntitiesDataset
+from src.SimKGC_custom.dataset import KGDataset
 from src.SimKGC_custom.models import CustomEncoder
-from src.SimKGC_custom.trainer import KGCTrainer, LoaderSetting, AverageMeter
+from src.SimKGC_custom.trainer import KGCTrainer, LoaderSetting
 from src.train_and_eval.logger import logger
 
 from transformers import AutoTokenizer
