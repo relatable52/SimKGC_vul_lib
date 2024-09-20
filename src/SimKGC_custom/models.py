@@ -48,12 +48,12 @@ class CustomEncoder(nn.Module):
     
     def predict_entity(
         self, *,
-        token_ids: torch.Tensor, mask: torch.Tensor, token_type_ids: torch.tensor,
+        input_ids: torch.Tensor, attention_mask: torch.Tensor, token_type_ids: torch.tensor,
         **kwargs
     ):
         outputs = self.tail_encoder(
-            input_ids = token_ids,
-            attention_mask = mask,
+            input_ids = input_ids,
+            attention_mask = attention_mask,
             token_type_ids = token_type_ids
         )
         return outputs

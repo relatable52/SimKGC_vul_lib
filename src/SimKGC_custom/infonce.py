@@ -38,7 +38,11 @@ def infonce(
     temp: float,
     margin: float
 ):
-    logits = hr_vector.mm(tail_vector.t())
+    norm_hr_vector = F.normalize(hr_vector, p=2, dim=1)
+    norm_tail_vector = F.normalize(tail_vector, p=2, dim=1)
+    norm_head_vector = F.normalize(head_vector, p=2, dim=1)
+
+    logits = F.cosine_similarity(norm_hr_vector, norm_tail_vector, dim=1)
     batch_size = hr_vector.size(0)
     labels = torch.arange(batch_size).to(hr_vector.device)
     logits -= torch.zeros(logits.size()).fill_diagonal_(margin).to(logits.device)
@@ -47,7 +51,7 @@ def infonce(
     logits.masked_fill_(~triplet_mask, -1e6)
 
     if use_self_negative:
-        self_neg_logits = torch.sum(hr_vector*head_vector, dim=1)/temp
+        self_neg_logits = torch.sum(norm_hr_vector*norm_head_vector, dim=1)/temp
         self_neg_logits.masked_fill_(~self_negative_mask, -1e6)
         logits = torch.cat([logits, self_neg_logits.unsqueeze(1)], dim=-1)
 
