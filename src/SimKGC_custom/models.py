@@ -57,6 +57,19 @@ class CustomEncoder(nn.Module):
             token_type_ids = token_type_ids
         )
         return outputs
+    
+    def predict_hr(
+        self, *,
+        input_ids: torch.Tensor, attention_mask: torch.Tensor, token_type_ids: torch.tensor,
+        **kwargs
+    ):
+        outputs = self.hr_encoder(
+            input_ids = input_ids,
+            attention_mask = attention_mask,
+            token_type_ids = token_type_ids
+        )
+        return outputs
+
 
 class EntitiesEncoder(nn.Module):
     def __init__(

@@ -11,11 +11,11 @@ from transformers import PreTrainedTokenizer
 from src.SimKGC_custom.models import CustomEncoder
 from src.SimKGC_custom.trainer import move_to_cuda
 
-def add_desc_embddings(
+def add_desc_embeddings(
     graph: nx.DiGraph,
     model: CustomEncoder,
     tokenizer: PreTrainedTokenizer,
-    max_length: int = 512
+    max_length: int = 512 
 ):
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     model.to(device)
@@ -34,7 +34,7 @@ def add_desc_embddings(
         inputs = move_to_cuda(inputs)
 
         with torch.no_grad():
-            outputs = model.predict_entity(inputs)
+            outputs = model.predict_entity(**inputs)
             embedding = outputs.last_hidden_state.mean(dim=1).squeeze().cpu()
 
         graph.nodes[node_id]['embedding'] = embedding
