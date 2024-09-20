@@ -42,7 +42,7 @@ def infonce(
     norm_tail_vector = F.normalize(tail_vector, p=2, dim=1)
     norm_head_vector = F.normalize(head_vector, p=2, dim=1)
 
-    logits = F.cosine_similarity(norm_hr_vector, norm_tail_vector, dim=1)
+    logits = norm_hr_vector.mm(norm_tail_vector.t())
     batch_size = hr_vector.size(0)
     labels = torch.arange(batch_size).to(hr_vector.device)
     logits -= torch.zeros(logits.size()).fill_diagonal_(margin).to(logits.device)
