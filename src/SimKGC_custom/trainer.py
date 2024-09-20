@@ -165,7 +165,7 @@ class KGCTrainer:
             batch_size = batch_dict['hr_token_ids'].size(0)
 
             if self.use_amp:
-                with torch.amp.autocast():
+                with torch.amp.autocast(device_type="cuda"):
                     outputs = self.model(**batch_dict)
             else:
                 outputs = self.model(**batch_dict)
@@ -236,6 +236,3 @@ class KGCTrainer:
                        'loss': round(losses.avg, 3)}
         self.logger.info('Epoch {}, valid metric: {}'.format(epoch, json.dumps(metric_dict)))
         return top1.avg
-
-
-        

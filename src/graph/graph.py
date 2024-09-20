@@ -35,7 +35,7 @@ def add_desc_embddings(
 
         with torch.no_grad():
             outputs = model.predict_entity(inputs)
-            embedding = outputs.last_hidden_state.mean(dim=1).squeeze()
+            embedding = outputs.last_hidden_state.mean(dim=1).squeeze().cpu()
 
         graph.nodes[node_id]['embedding'] = embedding
     
